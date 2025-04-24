@@ -11,13 +11,10 @@ from dataset import data_preprocess
 
 max_seq_length = 2048
 load_in_4bit = True
-
+model_name="results/codex-m/llama_True_True"
 
 model, tokenizer = FastLanguageModel.from_pretrained(
-        #model_name = "results/codex-m/llama_True_True", 
-        #model_name ="results/codex-m/llama_True_True",
-        model_name ="results/fb15k/llama_True_True",
-        #model_name = "results/wn18rr/llama_True_True",
+        model_name =model_name,
         max_seq_length = max_seq_length,
         dtype = None,
         load_in_4bit = load_in_4bit,
@@ -41,13 +38,13 @@ chat_prompt = """
 
 
 def formatting_prompts_func(examples):
-    instruction = f"Predict with the help of the given context and related facts, the tail entity [mask] by filling in the sentence."
+    instruction = f"Predict with the help of the given context and related facts,"
+    f"the tail entity [mask] by filling in the sentence."
     f"Return only the tail entity."
-    inputs       = examples["prompt"]
-    outputs      = examples["completion"]
+    inputs = examples["prompt"]
+    outputs = examples["completion"]
     texts = []
     for input, output in zip(inputs, outputs):
-        # Must add EOS_TOKEN, otherwise your generation will go on forever!
         text = chat_prompt.format(instruction, input, output) + EOS_TOKEN
         texts.append(text)
     return { "text" : texts, }
@@ -55,9 +52,8 @@ pass
 
 
 def compute_metrics(dataset, batch_size: int = 16):
-
     
-    model.eval()  # Set model to evaluation mode
+    model.eval()  
     hits_1 = 0
     hits_3 = 0
     hits_10 = 0
@@ -117,64 +113,6 @@ def compute_metrics(dataset, batch_size: int = 16):
     mrr_final = mrr / total if total > 0 else 0.
     return {"hits@1": hits_at_1, "hits@3": hits_at_3, "hits@10": hits_at_10, "mrr": mrr_final}
 
-
-# def compute_metrics(dataset, batch_size: int = 16):
-#     model.eval()  
-#     hits_1, hits_3, hits_10, mrr, total = 0, 0, 0, 0, 0
-
-#     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, pin_memory=True)
-
-    
-#     for batch in tqdm(dataloader, desc=f"Evaluating"):
-#         prompts = batch['prompt']
-#         ground_truths = batch['completion']
-
-#             # Format and tokenize batch
-#         formatted_prompts = [chat_prompt.format("", prompt, "") for prompt in prompts]
-#         inputs = tokenizer(
-#             formatted_prompts,
-#             return_tensors="pt",
-#             padding=True,
-#             truncation=True,
-#             max_length=max_seq_length
-#         ).to("cuda")
-
-#             # Generate predictions
-#         outputs = model.generate(
-#             **inputs,
-#             max_length=max_seq_length,
-#             do_sample=True,
-#             top_k=50,
-#             num_return_sequences=10,  
-#         ).to("cuda") 
-
-#             # Decode outputs
-#         decoded_outputs = tokenizer.batch_decode(outputs, skip_special_tokens=True)
-#         grouped_predictions = [decoded_outputs[i:i + 10] for i in range(0, len(decoded_outputs), 5)]
-
-#         # Compare each ground truth with predictions
-#         for i in range(len(prompts)):
-#             pred_group = grouped_predictions[i]
-#             label = ground_truths[i]
-#             pred_group = [pred.split("### Response:")[1].strip().split(EOS_TOKEN)[0].strip().replace("### Response:", "").strip() for pred in pred_group]
-
-#             if label in pred_group[:3]: hits_3 += 1    
-#             if label in pred_group[:10]: hits_10 += 1  
-#             if label == pred_group[0]: hits_1 += 1
-#             rank = next((i + 1 for i, pred in enumerate(pred_group[:10]) if pred == label), 0)
-#             mrr += 1 / rank if rank > 0 else 0
-#             total += 1
-
-#             # Free memory
-#         del inputs, outputs, decoded_outputs, grouped_predictions
-#         torch.cuda.empty_cache()
-
-#     return {
-#         "hits@1": hits_1 / total if total > 0 else 0.0,
-#         "hits@3": hits_3 / total if total > 0 else 0.0,
-#         "hits@10": hits_10 / total if total > 0 else 0.0,
-#         "mrr": mrr / total if total > 0 else 0.0
-#     }
 
 
 

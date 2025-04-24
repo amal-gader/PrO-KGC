@@ -17,7 +17,6 @@ load_in_4bit = True
 
 model, tokenizer = FastLanguageModel.from_pretrained(
     model_name = "unsloth/llama-3-8b-bnb-4bit",
-    #model_name = "results/fb15k/llama_True_True",
     max_seq_length = max_seq_length,
     dtype = dtype,
     load_in_4bit = load_in_4bit,
@@ -53,13 +52,18 @@ chat_prompt = """
 
 
 EOS_TOKEN = tokenizer.eos_token 
+
 def formatting_prompts_func(examples):
-    instruction = "Predict with the help of the given context and related facts, the tail entity [mask] by filling in the sentence. Return only the tail entity."
-    inputs       = examples["prompt"]
-    outputs      = examples["completion"]
+    
+    instruction = "Predict with the help of the given context and related facts,"
+    f"the tail entity [mask] by filling in the sentence."
+    f"Return only the tail entity."
+    
+    inputs = examples["prompt"]
+    outputs = examples["completion"]
     texts = []
+    
     for input, output in zip(inputs, outputs):
-        # Must add EOS_TOKEN, otherwise your generation will go on forever!
         text = chat_prompt.format(instruction, input, output) + EOS_TOKEN
         texts.append(text)
     return { "text" : texts, }

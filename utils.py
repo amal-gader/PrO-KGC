@@ -15,7 +15,8 @@ uni_api_key = os.getenv('UNI_API_KEY')
 
 client = openai.OpenAI(
     api_key=uni_api_key,
-    base_url="https://llms-inference.innkube.fim.uni-passau.de")
+    base_url="https://llms-inference.innkube.fim.uni-passau.de"
+    )
 
 openai_key = os.getenv('OPENAI_API_KEY')
 
@@ -187,9 +188,10 @@ def get_desc(entity: str, dataset:str, desc:dict):
     
 
 def find_patterns(graph, filename, size=3):
+    
     """ Create and store patterns, examples, and the third fact as a JSON dictionary """
-    # Dictionary to store patterns and examples
-    pattern_data = defaultdict(list)  # Store examples directly as a list
+
+    pattern_data = defaultdict(list)
 
     def dfs(current_node, path, relations):
         # Base case: if path length reaches `size`, save the pattern
@@ -197,7 +199,7 @@ def find_patterns(graph, filename, size=3):
             final_relation = graph.get(path[0], {}).get(path[-1], None)
             if final_relation:
                 relations.append(final_relation)  # Append final relation if path completes
-                pattern_tuple = tuple(relations)  # Convert to tuple for immutability
+                pattern_tuple = tuple(relations)  
 
                 # Create facts for the example
                 facts = [(path[i], relations[i], path[i + 1]) for i in range(len(path) - 1)]
@@ -212,7 +214,7 @@ def find_patterns(graph, filename, size=3):
 
         # Explore neighbors of the current node
         for neighbor, relation in graph.get(current_node, {}).items():
-            if neighbor not in path:  # Avoid cycles
+            if neighbor not in path:  
                 new_path = path + [neighbor]
                 new_relations = relations + [relation]
                 dfs(neighbor, new_path, new_relations)
@@ -221,10 +223,8 @@ def find_patterns(graph, filename, size=3):
     for start_node in graph:
         dfs(start_node, [start_node], [])
 
-    # Convert defaultdict to regular dict for JSON serialization
-    json_ready_data = {str(k): v for k, v in pattern_data.items()}
 
-    # Save the dictionary as a JSON file
+    json_ready_data = {str(k): v for k, v in pattern_data.items()}
     with open(f"{filename}.json", "w") as file:
         json.dump(json_ready_data, file, indent=4)  
 
@@ -320,11 +320,6 @@ def build_graph(dataset: str, splits: list[str], entities_dict: dict, relations_
 
 def generate_prompt(row, with_desc=True, with_context=True):
     prompt_parts = []
-    # sentence = (
-    #     f"Predict with the help of the given context and related facts, the tail entity [mask] by filling in the sentence."
-    #     f"Return only the tail entity."
-    #     f"Sentence: Head: {row['head']}, Relation: {row['relation']}, Tail: [mask]"
-    # )
     sentence = (
          f"Sentence: Head: {row['head']}, Relation: {row['relation']}, Tail: [mask]"
      )

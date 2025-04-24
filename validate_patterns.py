@@ -121,57 +121,57 @@ def format_prompt(pattern, examples):
 
 
 
+def validate_patterns(file_path, dataset, model):
+    #file_path = "lookup_files/patterns_codex-m_dict.json"
+    with open(file_path, "r") as file:
+        patterns = json.load(file)
+    data = []
+    for pattern, examples in patterns.items():
+        #normalized_pattern = normalize_pattern(pattern)
+        prompt = format_prompt(pattern, examples)
+        data.append((pattern, prompt))
 
 
-# file_path = "patterns_codex-m_dict.json"
-# with open(file_path, "r") as file:
-#     patterns = json.load(file)
+    df = pd.DataFrame(data, columns=["Pattern", "Prompt"])
 
-# data = []
-# for pattern, examples in patterns.items():
-#     #normalized_pattern = normalize_pattern(pattern)
-#     prompt = format_prompt(pattern, examples)
-#     data.append((pattern, prompt))
-
-
-# df = pd.DataFrame(data, columns=["Pattern", "Prompt"])
-
-# df['label'] = df['Prompt'].progress_apply(lambda x: inference(x))
-# df.to_csv('validated_patterns_codex-m_gpt.tsv', sep='\t', encoding='utf-8', index=False)
+    df['label'] = df['Prompt'].progress_apply(lambda x: inference(x))
+    df.to_csv(f'validated_patterns_{dataset}_{model}.tsv', sep='\t', encoding='utf-8', index=False)
 
 
 
 
 
-def filter_patterns():
-    patterns_1= pd.read_csv("validated_patterns_fb15k_gpt.tsv", sep='\t')
+def filter_patterns(file_path: str):
+    #file_path="validated_patterns_fb15k_gpt"
+    patterns_1= pd.read_csv(f"{file_path}.tsv", sep='\t')
     
     label_pattern = r"(?i)\b(valid|invalid)\b[\.,]?"
 
-    explanation_pattern = r"Explanation:\s*(.+)"
+    #explanation_pattern = r"Explanation:\s*(.+)"
     patterns_1['label (valid/invalid)']=patterns_1['label'].str.extract(label_pattern)
-   
 
     labels = pd.concat(
         [patterns_1['pattern'],patterns_1['Prompt'],
         patterns_1['label (valid/invalid)'], 
-        ],  # df1 has double weight
+        ], 
         axis=1
     )
 
-
     labels['pattern']=labels['pattern'].apply(ast.literal_eval)
-    labels[['pattern', 'label (valid/invalid)']].to_csv("validated_patterns_fb15k_gpt.txt",header=None, index=False)
+    labels[['pattern', 'label (valid/invalid)']].to_csv(f"{file_path}.txt",header=None, index=False)
 
 
 
 
 if __name__=='__main__':
     #filter_patterns()
-    patterns= pd.read_csv("validated_patterns_fb15k_gpt.txt",header=None, sep='\t')
+    file_path="validated_patterns_fb15k_gpt"
+    patterns_path = "patterns_fb15k_gpt.txt"
+    
+    patterns= pd.read_csv(file_path,header=None, sep='\t')
     label_pattern = r"(?i)\b(valid|invalid)\b[\.,]?"
     patterns['label (valid/invalid)']=patterns[0].str.extract(label_pattern)
     patterns[0] = patterns[0].str.replace(',Valid', '', regex=True)
      
-    patterns[0].to_csv("patterns_fb15k_gpt.txt",header=None, index=False, sep='\t')
+    patterns[0].to_csv(patterns_path,header=None, index=False, sep='\t')
     print(patterns.iloc[1][0])
