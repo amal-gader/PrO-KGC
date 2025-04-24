@@ -6,7 +6,7 @@ from datasets import Dataset
 from torch.utils.data import DataLoader
 import torch
 
-from dataset import data_preprocess
+from src.dataset import data_preprocess
 
 
 max_seq_length = 2048

@@ -6,7 +6,7 @@ from datasets import Dataset
 from trl import SFTTrainer
 from transformers import TrainingArguments
 
-from dataset import data_preprocess
+from src.dataset import data_preprocess
 
 
 

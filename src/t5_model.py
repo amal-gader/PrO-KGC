@@ -21,9 +21,9 @@ from peft import (
     TaskType
 )
 
-from dataset import Dataset, data_preprocess
+from src.dataset import Dataset, data_preprocess
 
-from utils import number_of_trainable_model_parameters
+from src.utils import number_of_trainable_model_parameters
 
 console = Console()
 

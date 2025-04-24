@@ -2,7 +2,7 @@ import pandas as pd
 
 from torch.utils.data import Dataset
 
-from utils import ( build_graph, data_loader, 
+from src.utils import ( build_graph, data_loader, 
                    entity2id_codex, entity2id_fb15k, 
                    entity2id_wn18rr, find_neighbor_with_same_relation, 
                    find_triplet_with_same_relation, 

@@ -8,10 +8,11 @@ tqdm.pandas()
 import torch
 import numpy as np
 from torch.utils.data import DataLoader
-from dataset import Dataset, data_preprocess
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from peft import PeftModel
 from sklearn.metrics import accuracy_score
+
+from src.dataset import Dataset, data_preprocess
 
 def link_prediction(df, id):
     log_threshold = 0.05
