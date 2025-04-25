@@ -1,5 +1,4 @@
 \venv
-\NBFNet\venvp8
 \__pycache__
 \Datasets
 .env
@@ -7,12 +6,6 @@
 \patterns
 \results
 \wandb
-\NBFNet
 .\history
 \models
-\SimKGC
-\KnowledgeGraphEmbedding
-\TuckER
-\logs
-\kge
 
